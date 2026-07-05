@@ -1,0 +1,22 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Emacs autosave files
+\#*\#
+.\#*
+*~
+
+# app/src/main/java/com/koreyhinton/photojournal/*.kt
+# app/src/test/java/com/koreyhinton/photojournal/*.kt
+# app/src/androidTest/java/com/koreyhinton/photojournal/*.kt
+
+# kotlin stuff
+.kotlin/
