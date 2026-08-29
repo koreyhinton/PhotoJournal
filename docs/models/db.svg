@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="750" height="750" viewBox="0,0,750,750" style="background-color:white">
+    <rect rx="0" ry="0" x="120" y="123" width="183" height="106" stroke="black" fill="transparent" stroke-width="1" id="rect1"/>
+    <text x="155" y="113" fill="black" id="text1">dc (digital camera)</text>
+    <text x="136" y="152" fill="black" id="text2">id</text>
+    <text x="136" y="173" fill="black" id="text3">dc_alias</text>
+    <text x="136" y="192" fill="black" id="text4">make</text>
+    <text x="136" y="211" fill="black" id="text5">model</text>
+    <text x="422" y="105" fill="black" id="text6">dcim (digital camera image)</text>
+    <text x="425" y="143" fill="black">id</text>
+    <text x="425" y="164" fill="black">dc_alias</text>
+    <text x="425" y="183" fill="black" id="text7">capture_datetime
+</text>
+    <text x="425" y="202" fill="black" id="text8">android_key</text>
+    <rect rx="0" ry="0" x="409" y="114" width="214" height="119" stroke="black" fill="transparent" stroke-width="1" id="rect2"/>
+    <text x="425" y="219" fill="black" id="text9">s3_key</text>
+    <text x="249" y="364" fill="black" id="text11">journal_entry</text>
+    <text x="219" y="404" fill="black" id="text10">date</text>
+    <text x="219" y="425" fill="black" id="text12">headline</text>
+    <text x="219" y="444" fill="black" id="text13">entry</text>
+    <rect rx="0" ry="0" x="203" y="375" width="183" height="106" stroke="black" fill="transparent" stroke-width="1"/>
+    <line x1="217" y1="393" x2="166" y2="404" stroke="black" stroke-width="1" id="line1"/>
+    <line x1="166" y1="404" x2="215" y2="428" stroke="black" stroke-width="1" id="line2"/>
+    <text x="34" y="387" fill="black" id="text14">fe assembles into wik</text>
+    <text x="33" y="410" fill="black" id="text15">formatted headline</text>
+    <text x="24" y="335" fill="black" id="text16">2026-01-01 [headline] JOURNAL ENTRY</text>
+    <polyline points="22 384 22 343 12 353 22 343 32 353" stroke="black" fill="transparent" stroke-width="1" id="polyline1"/>
+    <polyline points="210 440 159 440 169 430 159 440 169 450" stroke="black" fill="transparent" stroke-width="1" id="polyline2"/>
+    <text x="50" y="442" fill="black" id="text17">wik-lang format</text>
+    <text x="390" y="309" fill="black" id="text18">dcim where capture_datetime </text>
+    <text x="391" y="330" fill="black" id="text19">between journal_entry date and +1 day</text>
+</svg>
