@@ -9,7 +9,8 @@ export ${v}crt_db=db
 export ${v}upg_db=db
 
 cat << EOF
-
+    package com.koreyhinton.photojournal.data
+    import android.content.Context
     import android.database.sqlite.SQLiteDatabase
     import android.database.sqlite.SQLiteOpenHelper
 

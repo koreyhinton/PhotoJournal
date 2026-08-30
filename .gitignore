@@ -17,6 +17,7 @@ local.properties
 # app/src/main/java/com/koreyhinton/photojournal/*.kt
 # app/src/test/java/com/koreyhinton/photojournal/*.kt
 # app/src/androidTest/java/com/koreyhinton/photojournal/*.kt
+app/src/main/java/com/koreyhinton/photojournal/data/DbHelper.kt
 
 # kotlin stuff
 .kotlin/
