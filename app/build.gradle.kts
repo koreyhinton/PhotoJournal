@@ -31,6 +31,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    packaging {
+        resources.excludes.add("META-INF/**")
+    }
 }
 
 dependencies {
@@ -40,6 +43,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation("androidx.webkit:webkit:1.17.0") 
     implementation(libs.material)
+    implementation(platform("software.amazon.awssdk:bom:2.25.0"))
+    implementation("software.amazon.awssdk:s3")
+    implementation("software.amazon.awssdk:url-connection-client")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
