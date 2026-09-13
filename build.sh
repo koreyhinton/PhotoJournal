@@ -3,6 +3,7 @@
 # this is a prebuild that generates the kotlin files
 # first run this script, then run via android studio
 
+export S3_ERR_LOG="com.koreyhinton.photojournal.log.Log"
 orc=$(realpath ../orc)
 export NSMAP=${orc}/lib/src/main/bash/com/koreyhinton/nsmap
 export ORC_S3=${orc}/lib/src/templates/kotlin/com/koreyhinton/s3

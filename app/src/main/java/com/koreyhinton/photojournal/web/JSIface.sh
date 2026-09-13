@@ -3,6 +3,7 @@
 v=${1:-jsi_}
 priv=${RANDOM}_
 # maps
+export ${v}${priv}_list_S3ClientBuild=${v}${priv}_build_S3ClientBuild
 
 cat << EOF
 
@@ -10,6 +11,7 @@ package com.koreyhinton.photojournal.web
 
 import android.content.Context
 import android.webkit.JavascriptInterface
+import com.koreyhinton.photojournal.R
 import com.koreyhinton.photojournal.data.DbHelper
 import com.koreyhinton.photojournal.models.S3ClientBuild
 import com.koreyhinton.photojournal.MainActivity
@@ -18,6 +20,7 @@ import android.widget.EditText
 import android.text.InputType
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.webkit.WebView
 
 class JSIface(
         private val context: Context,
@@ -62,17 +65,32 @@ class JSIface(
             layout.addView(urlEditText)
 
             val conn = { dialog: DialogInterface, which: Int ->
-                val ${v}${priv}build_S3ClientBuild = S3ClientBuild(
-                    awsRegion = regEditText.text.toString(),
-                    awsUrl = urlEditText.text.toString(),
-                    awsAccessKeyId = accessKeyEditText.text.toString(),
-                    awsSecretAccessKey = secretEditText.text.toString()
-                )
-                secretEditText.text = null
-                accessKeyEditText.text = null
-                urlEditText.text = null
-                regEditText.text = null
-                ` ${ORC_S3}/snippets/build-client.sh ${v}${priv}build_ `
+
+                Thread {
+                    val ${v}${priv}build_S3ClientBuild = S3ClientBuild(
+                        awsRegion = regEditText.text.toString(),
+                        awsUrl = urlEditText.text.toString(),
+                        awsAccessKeyId = accessKeyEditText.text.toString(),
+                        awsSecretAccessKey = secretEditText.text.toString()
+                    )
+                    secretEditText.text = null
+                    accessKeyEditText.text = null
+                    urlEditText.text = null
+                    regEditText.text = null
+                    ` ${ORC_S3}/snippets/build-client.sh ${v}${priv}build_ `
+                    ` ${ORC_S3}/snippets/list-buckets.sh ${v}${priv}list_ `
+
+                    activity.runOnUiThread {
+                        var webV = activity.findViewById<WebView>(R.id.webby)
+                        webV.post {
+                            webV.evaluateJavascript("document.write('"+${v}${priv}list_S3BucketCsv+"');", null)
+                        }
+                    }
+                }.start()
+
+
+
+                Unit
             }
 
             AlertDialog.Builder(activity)

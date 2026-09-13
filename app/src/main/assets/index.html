@@ -3,12 +3,18 @@
 <head>
     <title>hola</title>
     <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <script>
+        signIn = async function() {
+            var data = await window['JSIface'].signIn();
+            console.log(data);
+        }
+    </script>
 </head>
 <body>
     hola world
     <script>
         document.write(window['JSIface'].retrieveDays());
     </script>
-    <button onclick="window['JSIface'].signIn()">S3 sync</button>
+    <button onclick="signIn()">S3 sync</button>
 </body>
 </html>

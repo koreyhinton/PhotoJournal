@@ -43,6 +43,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation("androidx.webkit:webkit:1.17.0") 
     implementation(libs.material)
+    implementation("com.fasterxml.woodstox:woodstox-core:6.6.0")
+    implementation("javax.xml.stream:stax-api:1.0-2")
     implementation(platform("software.amazon.awssdk:bom:2.25.0"))
     implementation("software.amazon.awssdk:s3")
     implementation("software.amazon.awssdk:url-connection-client")
