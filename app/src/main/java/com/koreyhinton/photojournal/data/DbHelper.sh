@@ -18,6 +18,23 @@ cat << EOF
         context, "photo_journal.db", null, ${DB_VERSION}
     ) {
 
+        fun retrieveDays(): String {
+            val db = readableDatabase
+            var csv = ""
+            db.rawQuery(
+                """
+                select distinct capture_date from dcim
+                """, null
+            ).use { cursor ->
+                while (cursor.moveToNext()) {
+                    if (!csv.isEmpty())
+                        csv += ","
+                    csv += cursor.getString(0)
+                }
+            }
+            return csv
+        }
+
         override fun onCreate(db: SQLiteDatabase) {
             ` ./ddl-create.sh ${v}crt_ `
         }
