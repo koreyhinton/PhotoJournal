@@ -23,3 +23,6 @@ app/src/main/java/com/koreyhinton/photojournal/web/JSIface.kt
 
 # kotlin stuff
 .kotlin/
+
+# jvm stuff
+hs_err_pid*.log
