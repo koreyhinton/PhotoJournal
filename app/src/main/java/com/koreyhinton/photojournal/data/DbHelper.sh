@@ -37,6 +37,25 @@ cat << EOF
             return csv
         }
 
+        fun zeroS3Data(): Boolean {
+            // If the app was uninstalled and reinstalled
+            // s3 buckets have ids but the tables are
+            // now gone. So, a force-overwrite s3 id file
+            // mode will be enabled if zeroS3Data returns true
+            val db = readableDatabase
+            db.rawQuery(
+                "select exists(select 1 from s3 limit 1);",
+                null
+            ).use { cursor ->
+                if (cursor.moveToFirst()) {
+                    var hasRows = cursor.getInt(0) == 1
+                    return !hasRows
+                }
+            }
+            return true
+
+        }
+
         fun insertS3(): Long {
             val db = writableDatabase
             var values = ContentValues()

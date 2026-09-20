@@ -11,7 +11,10 @@ PJ_APP_BUCKET_ID=".pj_app_bucket_id"
 export ${v}${priv}_list_S3ClientBuild=${v}${priv}_build_S3ClientBuild
 export ${v}${priv}_objects_S3ClientBuild=${v}${priv}_build_S3ClientBuild
 export ${v}${priv}objects_S3Bucket=b
-export ${v}ft_S3File=${v}fe_S3File
+export ${v}seek_s3id_Id=s3Id
+export ${v}seek_buckid_Id=bucketId
+export ${v}newfound_bucket_Text="bucketId.toString()"
+export ${v}newfound_bucket_s3_Text="s3Id.toString()"
 cat << EOF
 
 package com.koreyhinton.photojournal.web
@@ -43,6 +46,15 @@ class JSIface(
     }
     @JavascriptInterface
     fun signIn() {
+
+        // there could be 2 phones accessing same s3 bucket, so we need to add
+        // a device hash component so it writes to its own surrogate id files
+        var dvcHash = java.security.MessageDigest.getInstance("SHA-256").digest(
+            android.provider.Settings.Secure.getString(
+                context.getContentResolver(),
+                android.provider.Settings.Secure.ANDROID_ID
+                ).toByteArray(Charsets.UTF_8)
+        ).joinToString("") { "$02x".format(it) }
 
         val cacheFile = File(context.cacheDir, ".pj-s3-cache")
         val unicodeFieldSep = "\u001F"
@@ -145,21 +157,16 @@ class JSIface(
 
                     var s3Id: Long? = null
                     for (b in buckets) {
-                        val ${v}fe_S3File = S3File(
+                        val ${v}seek_s3id_S3File = S3File(
                             bucket = b,
-                            name = "${PJ_APP_S3_ID}"
+                            name = "${PJ_APP_S3_ID}" + dvcHash
                         )
-                        ` ${ORC_S3}/snippets/file-exists.sh ${v}fe_ `
-                        if (${v}fe_S3ConfirmedFile.exists) {
-                            ` ${ORC_S3}/snippets/file-text.sh ${v}ft_ `
-                            if (${v}ft_S3FileText == null)
-                                throw Exception("Error: Id file exists but failed on read. Cannot continue to create possible duplicate db records. Resolve manually (look at logs and either retry in case of s3 failure, or either fix the corrupt .${PJ_APP_S3_ID} file or delete them from respective buckets after confirming it is safe to proceed to create all the image db records)")
-                            s3Id = ${v}ft_S3FileText.toLong()
+                        ` ./JSIface-read-id.sh ${v}seek_s3id_ `
+                        if (s3Id != null)
                             break;
-                        }
                     }
 
-                    if (s3Id == null) {
+                    if (s3Id == null || dbHelper.zeroS3Data()) {
                         // write new s3 and bucket records to the database
                         // each paired with 2 dot id files saved in each bucket
                         s3Id = dbHelper.insertS3()
@@ -169,30 +176,50 @@ class JSIface(
                             // write both dot id files
                             val ${v}s3_S3File = S3File(
                                 bucket = b,
-                                name = "${PJ_APP_S3_ID}"
+                                name = "${PJ_APP_S3_ID}" + dvcHash
                             )
                             val ${v}s3_Text = s3Id.toString()
                             ` ${ORC_S3}/snippets/create-file.sh ${v}s3_`
                             if (!${v}s3_S3ConfirmedFile.exists)
                                 throw Exception("Unable to create s3 dot id file")
-                            
+
                             val ${v}bucket_S3File = S3File(
                                 bucket = b,
-                                name = "${PJ_APP_BUCKET_ID}"
+                                name = "${PJ_APP_BUCKET_ID}" + dvcHash
                             )
                             val ${v}bucket_Text = s3Id.toString()
                             ` ${ORC_S3}/snippets/create-file.sh ${v}bucket_`
                             if (!${v}bucket_S3ConfirmedFile.exists)
                                 throw Exception("Unable to create bucket dot id file for bucket: " + b)
-
                         }
                     }
 
                     for (b in buckets) {
 
-                        // todo: obtain the bucketId from the dot id file
-                        // todo: same code as when retrieving s3id above,
-                        //       possibly factor out into its own sh file
+                        var bucketId: Long? = null
+                        val ${v}seek_buckid_S3File = S3File(
+                            bucket = b,
+                            name = "${PJ_APP_BUCKET_ID}" + dvcHash
+                        )
+                        ` ./JSIface-read-id.sh ${v}seek_buckid_ `
+                        if (bucketId == null) {
+                            bucketId = dbHelper.insertBucket(s3Id)
+                            val ${v}newfound_bucket_S3File = S3File(
+                                bucket = b,
+                                name = "${PJ_APP_BUCKET_ID}" + dvcHash
+                            )
+                            ` ${ORC_S3}/snippets/create-file.sh ${v}newfound_bucket_ `
+                            if (!${v}newfound_bucket_S3ConfirmedFile.exists)
+                                throw Exception("unable to create bucket id in bucket: " + b)
+
+                            val ${v}newfound_bucket_s3_S3File = S3File(
+                                bucket = b,
+                                name = "${PJ_APP_S3_ID}" + dvcHash
+                            )
+                            ` ${ORC_S3}/snippets/create-file.sh ${v}newfound_bucket_s3_ `
+                            if (!${v}newfound_bucket_s3_S3ConfirmedFile.exists)
+                                throw Exception("unable to create s3 id in bucket: " + b)
+                        }
 
                         // todo: sync from s3 to create bucket_dcim/dcim records
                         ` ${ORC_S3}/snippets/list-files.sh ${v}${priv}objects_ `
