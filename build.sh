@@ -13,6 +13,9 @@ if [[ ! -f "${NSMAP}/bind" ]]; then
     exit 1
 fi
 
+export S3_CLIENT_BUILD_NS=com.koreyhinton.photojournal.models
+export S3_FILE_NS=com.koreyhinton.photojournal.models
+export S3_CONFIRMED_FILE_CLASS_NS=com.koreyhinton.photojournal.models.S3ConfirmedFile
 export S3_CLIENT_BUILD_CLASS_FULL=com.koreyhinton.photojournal.models.S3ClientBuild
 
 cd ./app/src/main/java/com/koreyhinton/photojournal/data/

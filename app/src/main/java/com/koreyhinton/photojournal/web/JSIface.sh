@@ -2,11 +2,16 @@
 
 v=${1:-jsi_}
 priv=${RANDOM}_
+
+# local
+PJ_APP_S3_ID=".pj_app_s3_id"
+PJ_APP_BUCKET_ID=".pj_app_bucket_id"
+
 # maps
 export ${v}${priv}_list_S3ClientBuild=${v}${priv}_build_S3ClientBuild
 export ${v}${priv}_objects_S3ClientBuild=${v}${priv}_build_S3ClientBuild
 export ${v}${priv}objects_S3Bucket=b
-
+export ${v}ft_S3File=${v}fe_S3File
 cat << EOF
 
 package com.koreyhinton.photojournal.web
@@ -15,6 +20,7 @@ import android.content.Context
 import android.webkit.JavascriptInterface
 import com.koreyhinton.photojournal.R
 import com.koreyhinton.photojournal.data.DbHelper
+import com.koreyhinton.photojournal.models.S3File
 import com.koreyhinton.photojournal.models.S3ClientBuild
 import com.koreyhinton.photojournal.MainActivity
 import android.widget.LinearLayout
@@ -135,7 +141,60 @@ class JSIface(
 
                     ` ${ORC_S3}/snippets/build-client.sh ${v}${priv}build_ `
                     ` ${ORC_S3}/snippets/list-buckets.sh ${v}${priv}list_ `
-                    for (b in ${v}${priv}list_S3BucketCsv.split(",")) {
+                    val buckets = ${v}${priv}list_S3BucketCsv.split(",")
+
+                    var s3Id: Long? = null
+                    for (b in buckets) {
+                        val ${v}fe_S3File = S3File(
+                            bucket = b,
+                            name = "${PJ_APP_S3_ID}"
+                        )
+                        ` ${ORC_S3}/snippets/file-exists.sh ${v}fe_ `
+                        if (${v}fe_S3ConfirmedFile.exists) {
+                            ` ${ORC_S3}/snippets/file-text.sh ${v}ft_ `
+                            if (${v}ft_S3FileText == null)
+                                throw Exception("Error: Id file exists but failed on read. Cannot continue to create possible duplicate db records. Resolve manually (look at logs and either retry in case of s3 failure, or either fix the corrupt .${PJ_APP_S3_ID} file or delete them from respective buckets after confirming it is safe to proceed to create all the image db records)")
+                            s3Id = ${v}ft_S3FileText.toLong()
+                            break;
+                        }
+                    }
+
+                    if (s3Id == null) {
+                        // write new s3 and bucket records to the database
+                        // each paired with 2 dot id files saved in each bucket
+                        s3Id = dbHelper.insertS3()
+                        for (b in buckets) {
+                            var bucketId = dbHelper.insertBucket(s3Id)
+
+                            // write both dot id files
+                            val ${v}s3_S3File = S3File(
+                                bucket = b,
+                                name = "${PJ_APP_S3_ID}"
+                            )
+                            val ${v}s3_Text = s3Id.toString()
+                            ` ${ORC_S3}/snippets/create-file.sh ${v}s3_`
+                            if (!${v}s3_S3ConfirmedFile.exists)
+                                throw Exception("Unable to create s3 dot id file")
+                            
+                            val ${v}bucket_S3File = S3File(
+                                bucket = b,
+                                name = "${PJ_APP_BUCKET_ID}"
+                            )
+                            val ${v}bucket_Text = s3Id.toString()
+                            ` ${ORC_S3}/snippets/create-file.sh ${v}bucket_`
+                            if (!${v}bucket_S3ConfirmedFile.exists)
+                                throw Exception("Unable to create bucket dot id file for bucket: " + b)
+
+                        }
+                    }
+
+                    for (b in buckets) {
+
+                        // todo: obtain the bucketId from the dot id file
+                        // todo: same code as when retrieving s3id above,
+                        //       possibly factor out into its own sh file
+
+                        // todo: sync from s3 to create bucket_dcim/dcim records
                         ` ${ORC_S3}/snippets/list-files.sh ${v}${priv}objects_ `
                         counts.add(
                             ${v}${priv}objects_S3FilesCsv.split(",").count())

@@ -11,8 +11,10 @@ export ${v}upg_db=db
 cat << EOF
     package com.koreyhinton.photojournal.data
     import android.content.Context
+    import android.content.ContentValues
     import android.database.sqlite.SQLiteDatabase
     import android.database.sqlite.SQLiteOpenHelper
+    import com.koreyhinton.photojournal.models.S3File
 
     class DbHelper(context: Context) : SQLiteOpenHelper(
         context, "photo_journal.db", null, ${DB_VERSION}
@@ -33,6 +35,21 @@ cat << EOF
                 }
             }
             return csv
+        }
+
+        fun insertS3(): Long {
+            val db = writableDatabase
+            var values = ContentValues()
+            values.putNull("id")
+            return db.insertOrThrow("s3", null, values)
+        }
+
+        fun insertBucket(s3Id: Long): Long {
+            var values = ContentValues()
+            values.putNull("id")
+            values.put("s3_id", s3Id)
+            val db = writableDatabase
+            return db.insertOrThrow("bucket", null, values)
         }
 
         override fun onCreate(db: SQLiteDatabase) {
