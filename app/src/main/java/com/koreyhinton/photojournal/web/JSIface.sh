@@ -28,7 +28,9 @@ import com.koreyhinton.photojournal.models.S3ClientBuild
 import com.koreyhinton.photojournal.MainActivity
 import android.widget.LinearLayout
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import android.text.InputType
 import android.app.AlertDialog
 import android.content.DialogInterface
@@ -54,7 +56,7 @@ class JSIface(
                 context.getContentResolver(),
                 android.provider.Settings.Secure.ANDROID_ID
                 ).toByteArray(Charsets.UTF_8)
-        ).joinToString("") { "$02x".format(it) }
+        ).joinToString("") { "\$02x".format(it) }
 
         val cacheFile = File(context.cacheDir, ".pj-s3-cache")
         val unicodeFieldSep = "\u001F"
@@ -133,11 +135,32 @@ class JSIface(
             val conn = { dialog: DialogInterface, which: Int ->
 
                 Thread {
+
+                    // Save to cache before the early-return, so that the
+                    // fields aren't re-entered once the dialog is opened anew
+
                     cacheFile.writeText(
                         accessKeyEditText.text.toString() + unicodeFieldSep +
                         regEditText.text.toString() + unicodeFieldSep +
                         urlEditText.text.toString()
                     )
+
+                    if (
+                        regEditText.text.toString() == "" ||
+                        accessKeyEditText.text.toString() == "" ||
+                        urlEditText.text.toString() == "" ||
+                        secretEditText.text.toString() == ""
+                    ) {
+                        secretEditText.text = null
+                        accessKeyEditText.text = null
+                        urlEditText.text = null
+                        regEditText.text = null
+                        activity.runOnUiThread {
+                            Toast.makeText(activity, "Error: empty field, please try again", Toast.LENGTH_SHORT).show()
+                        }
+                        return@Thread
+                    }
+
                     val ${v}${priv}build_S3ClientBuild = S3ClientBuild(
                         awsRegion = regEditText.text.toString(),
                         awsUrl = urlEditText.text.toString(),
@@ -149,9 +172,35 @@ class JSIface(
                     urlEditText.text = null
                     regEditText.text = null
 
+                    var progressDialog: AlertDialog? = null
+                    activity.runOnUiThread {
+                        progressDialog = AlertDialog.Builder(activity)
+                            .setTitle("Syncing")
+                            .setMessage("Please wait...")
+                            .setView(ProgressBar(context).apply {
+                                isIndeterminate = true
+                                setPadding(40, 40, 40, 40)
+                            })
+                            .setCancelable(false)
+                            .create()
+                        progressDialog.show()
+                    }
+
                     var counts = mutableListOf<Int>()
 
                     ` ${ORC_S3}/snippets/build-client.sh ${v}${priv}build_ `
+                    if (${S3_CLIENT_BUILD_CLASS_FULL}.client == null) {
+                        activity.runOnUiThread {
+                            progressDialog?.dismiss()
+                            Toast.makeText(
+                                activity,
+                                "Error: failed to initialize s3 client, " +
+                                    "please try again and verify login",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        return@Thread
+                    }
                     ` ${ORC_S3}/snippets/list-buckets.sh ${v}${priv}list_ `
                     val buckets = ${v}${priv}list_S3BucketCsv.split(",")
 
@@ -228,14 +277,13 @@ class JSIface(
                     }
 
                     activity.runOnUiThread {
+                        progressDialog?.dismiss()
                         var webV = activity.findViewById<WebView>(R.id.webby)
                         webV.post {
                             webV.evaluateJavascript("document.write('"+${v}${priv}list_S3BucketCsv+counts.joinToString(separator="-")+"');", null)
                         }
                     }
                 }.start()
-
-
 
                 Unit
             }
