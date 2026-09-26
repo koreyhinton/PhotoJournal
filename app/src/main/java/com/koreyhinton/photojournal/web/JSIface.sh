@@ -186,7 +186,7 @@ class JSIface(
                         progressDialog.show()
                     }
 
-                    var counts = mutableListOf<Int>()
+                    var counts = mutableListOf<String>()
 
                     ` ${ORC_S3}/snippets/build-client.sh ${v}${priv}build_ `
                     if (${S3_CLIENT_BUILD_CLASS_FULL}.client == null) {
@@ -243,7 +243,10 @@ class JSIface(
                         }
                     }
 
+
                     for (b in buckets) {
+
+                        var zphotoIds = dbHelper.readZPH()  // must re-read them per bucket, because multiple buckets could have the same file and on an initial full-load it will break uniqueness constraint
 
                         var bucketId: Long? = null
                         val ${v}seek_buckid_S3File = S3File(
@@ -270,10 +273,24 @@ class JSIface(
                                 throw Exception("unable to create s3 id in bucket: " + b)
                         }
 
-                        // todo: sync from s3 to create bucket_dcim/dcim records
+                        var missing = 0
+                        var found = 0
+
+                        // sync from s3 to create bucket_dcim/dcim records
                         ` ${ORC_S3}/snippets/list-files.sh ${v}${priv}objects_ `
+                        for (zph in ${v}${priv}objects_S3FilesCsv.split(",")) {
+                            if (zph in zphotoIds) {
+                                found += 1;
+                            } else {
+                                var errorString = dbHelper.insertZPH(zph)
+                                if (!errorString.isEmpty())
+                                    counts.add("<br/>!! "+errorString + " !!<br/>")//todo: hack just to get it written onto screen for now
+                                missing += 1;
+                            }
+                        }
                         counts.add(
-                            ${v}${priv}objects_S3FilesCsv.split(",").count())
+                            "(" + b + ") " + "missing: " + missing.toString() +
+                            ", found: " + found.toString() + "<br/>")
                     }
 
                     activity.runOnUiThread {

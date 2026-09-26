@@ -35,7 +35,10 @@ create table if not exists dcim (
            -- for these 2 scenarios:
            --  1) user adds a pic to a previously selected journal day
            --  2) cloud image backed up by the app has the date part in the name
-    android_key text -- includes device info to retrieve the file from disk
+    orig_name text,
+    android_key text, -- includes device info to retrieve the file from disk
+
+    unique(dc_alias, capture_date, orig_name)
 ) strict;
 
 create table if not exists bucket_dcim (
