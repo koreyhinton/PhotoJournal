@@ -18,6 +18,11 @@ local.properties
 # app/src/test/java/com/koreyhinton/photojournal/*.kt
 # app/src/androidTest/java/com/koreyhinton/photojournal/*.kt
 app/src/main/java/com/koreyhinton/photojournal/data/DbHelper.kt
+app/src/main/java/com/koreyhinton/photojournal/models/Models.kt
+app/src/main/java/com/koreyhinton/photojournal/web/JSIface.kt
 
 # kotlin stuff
 .kotlin/
+
+# jvm stuff
+hs_err_pid*.log
