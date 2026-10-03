@@ -1,18 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="750" height="750" viewBox="0,0,750,750" style="background-color:white">
-    <rect rx="0" ry="0" x="120" y="123" width="183" height="106" stroke="black" fill="transparent" stroke-width="1" id="rect1"/>
-    <text x="155" y="113" fill="black" id="text1">dc (digital camera)</text>
-    <text x="136" y="152" fill="black" id="text2">id</text>
-    <text x="136" y="173" fill="black" id="text3">dc_alias</text>
-    <text x="136" y="192" fill="black" id="text4">make</text>
-    <text x="136" y="211" fill="black" id="text5">model</text>
-    <text x="422" y="105" fill="black" id="text6">dcim (digital camera image)</text>
-    <text x="425" y="143" fill="black">id</text>
-    <text x="425" y="164" fill="black">dc_alias</text>
-    <text x="425" y="183" fill="black" id="text7">capture_datetime
+    <rect rx="0" ry="0" x="525" y="340" width="183" height="106" stroke="black" fill="transparent" stroke-width="1" id="rect1"/>
+    <text x="560" y="330" fill="black" id="text1">dc (digital camera)</text>
+    <text x="541" y="369" fill="black" id="text2">id</text>
+    <text x="541" y="390" fill="black" id="text3">dc_alias</text>
+    <text x="541" y="409" fill="black" id="text4">make</text>
+    <text x="541" y="428" fill="black" id="text5">model</text>
+    <text x="542" y="548" fill="black" id="text6">dcim (digital camera image)</text>
+    <text x="545" y="586" fill="black" id="text28">id</text>
+    <text x="545" y="607" fill="black" id="text29">dc_alias</text>
+    <text x="545" y="626" fill="black" id="text7">capture_datetime
 </text>
-    <text x="425" y="202" fill="black" id="text8">android_key</text>
-    <rect rx="0" ry="0" x="409" y="114" width="214" height="119" stroke="black" fill="transparent" stroke-width="1" id="rect2"/>
-    <text x="425" y="219" fill="black" id="text9">s3_key</text>
+    <text x="545" y="645" fill="black" id="text8">android_key</text>
+    <rect rx="0" ry="0" x="529" y="559" width="214" height="119" stroke="black" fill="transparent" stroke-width="1" id="rect2"/>
     <text x="249" y="364" fill="black" id="text11">journal_entry</text>
     <text x="219" y="404" fill="black" id="text10">date</text>
     <text x="219" y="425" fill="black" id="text12">headline</text>
@@ -26,6 +25,30 @@
     <polyline points="22 384 22 343 12 353 22 343 32 353" stroke="black" fill="transparent" stroke-width="1" id="polyline1"/>
     <polyline points="210 440 159 440 169 430 159 440 169 450" stroke="black" fill="transparent" stroke-width="1" id="polyline2"/>
     <text x="50" y="442" fill="black" id="text17">wik-lang format</text>
-    <text x="390" y="309" fill="black" id="text18">dcim where capture_datetime </text>
-    <text x="391" y="330" fill="black" id="text19">between journal_entry date and +1 day</text>
+    <text x="495" y="710" fill="black" id="text18">dcim where capture_datetime </text>
+    <text x="496" y="731" fill="black" id="text19">between journal_entry date and +1 day</text>
+    <rect rx="0" ry="0" x="15" y="559" width="101" height="81" stroke="black" fill="transparent" stroke-width="1" id="rect3"/>
+    <text x="61" y="593" fill="black" id="text20">s3</text>
+    <text x="24" y="630" fill="black" id="text21">id</text>
+    <text x="214" y="593" fill="black" id="text23">bucket</text>
+    <text x="183" y="629" fill="black" id="text22">id</text>
+    <rect rx="0" ry="0" x="174" y="559" width="120" height="109" stroke="black" fill="transparent" stroke-width="1" id="rect4"/>
+    <text x="183" y="652" fill="black" id="text24">s3_id</text>
+    <text x="364" y="629" fill="black" id="text27">bucket_id</text>
+    <rect rx="0" ry="0" x="355" y="559" width="123" height="106" stroke="black" fill="transparent" stroke-width="1" id="rect5"/>
+    <text x="364" y="652" fill="black" id="text25">dcim_id</text>
+    <text x="382" y="590" fill="black" id="text26">bucket_dcim</text>
+    <polyline points="128 590 171 590 161 580 171 590 161 600" stroke="black" fill="transparent" stroke-width="1" id="polyline3"/>
+    <polyline points="161 590 119 590 129 580 119 590 129 600" stroke="black" fill="transparent" stroke-width="1" id="polyline4"/>
+    <polyline points="119 590 161 590 151 580 161 590 151 600" stroke="black" fill="transparent" stroke-width="1" id="polyline5"/>
+    <polyline points="308 590 351 590 341 580 351 590 341 600" stroke="black" fill="transparent" stroke-width="1" id="polyline6"/>
+    <polyline points="341 590 299 590 309 580 299 590 309 600" stroke="black" fill="transparent" stroke-width="1" id="polyline7"/>
+    <polyline points="299 590 341 590 331 580 341 590 331 600" stroke="black" fill="transparent" stroke-width="1" id="polyline8"/>
+    <polyline points="494 590 518 590 508 580 518 590 508 600" stroke="black" fill="transparent" stroke-width="1" id="polyline10"/>
+    <polyline points="527 590 489 590 499 580 489 590 499 600" stroke="black" fill="transparent" stroke-width="1" id="polyline11"/>
+    <polyline points="485 590 527 590 517 580 527 590 517 600" stroke="black" fill="transparent" stroke-width="1" id="polyline12"/>
+    <polyline points="515 590 480 590 490 580 480 590 490 600" stroke="black" fill="transparent" stroke-width="1" id="polyline9"/>
+    <polyline points="548 455 548 526 538 516 548 526 558 516" stroke="black" fill="transparent" stroke-width="1" id="polyline13"/>
+    <polyline points="548 483 548 515 538 505 548 515 558 505" stroke="black" fill="transparent" stroke-width="1" id="polyline14"/>
+    <polyline points="548 503 548 453 538 463 548 453 558 463" stroke="black" fill="transparent" stroke-width="1" id="polyline15"/>
 </svg>

@@ -10,7 +10,8 @@ create table if not exists dc (
             ie: KIPH => korey's iphone
         */
     make text,
-    model text
+    model text,
+    is_this_device integer not null check (is_this_device IN (0,1)) default 0
 ) strict;
 
 -- dcim => digital camera image
@@ -35,12 +36,25 @@ create table if not exists dcim (
            -- for these 2 scenarios:
            --  1) user adds a pic to a previously selected journal day
            --  2) cloud image backed up by the app has the date part in the name
+    orig_name text,
     android_key text, -- includes device info to retrieve the file from disk
-    s3_key text -- includes s3 info: which instance, bucket, and the s3 filename
-        check (
-            android_key is not null
-            or s3_key is not null
-        )
+
+    unique(dc_alias, capture_date, orig_name)
+) strict;
+
+create table if not exists bucket_dcim (
+    bucket_id integer,
+    dcim_id integer,
+    primary key (bucket_id, dcim_id)
+) strict;
+
+create table if not exists bucket (
+    id integer primary key,
+    s3_id integer
+) strict;
+
+create table if not exists s3 (
+    id integer primary key
 ) strict;
 
 create table if not exists journal_entry (
