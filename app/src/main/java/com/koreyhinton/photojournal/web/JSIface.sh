@@ -50,13 +50,14 @@ class JSIface(
     fun signIn() {
 
         // there could be 2 phones accessing same s3 bucket, so we need to add
-        // a device hash component so it writes to its own surrogate id files
-        var dvcHash = java.security.MessageDigest.getInstance("SHA-256").digest(
-            android.provider.Settings.Secure.getString(
-                context.getContentResolver(),
-                android.provider.Settings.Secure.ANDROID_ID
-                ).toByteArray(Charsets.UTF_8)
-        ).joinToString("") { "\$02x".format(it) }
+        // a device alias component so it writes to its own surrogate id files
+        var dvcAlias = dbHelper.retrieveThisDeviceAlias()
+        if (dvcAlias == null) {
+            activity.runOnUiThread {
+                Toast.makeText(activity, "Error: unable to locate this device short name", Toast.LENGTH_SHORT).show()
+            }
+            return;
+        }
 
         val cacheFile = File(context.cacheDir, ".pj-s3-cache")
         val unicodeFieldSep = "\u001F"
@@ -208,7 +209,7 @@ class JSIface(
                     for (b in buckets) {
                         val ${v}seek_s3id_S3File = S3File(
                             bucket = b,
-                            name = "${PJ_APP_S3_ID}" + dvcHash
+                            name = "${PJ_APP_S3_ID}" + dvcAlias
                         )
                         ` ./JSIface-read-id.sh ${v}seek_s3id_ `
                         if (s3Id != null)
@@ -225,7 +226,7 @@ class JSIface(
                             // write both dot id files
                             val ${v}s3_S3File = S3File(
                                 bucket = b,
-                                name = "${PJ_APP_S3_ID}" + dvcHash
+                                name = "${PJ_APP_S3_ID}" + dvcAlias
                             )
                             val ${v}s3_Text = s3Id.toString()
                             ` ${ORC_S3}/snippets/create-file.sh ${v}s3_`
@@ -234,7 +235,7 @@ class JSIface(
 
                             val ${v}bucket_S3File = S3File(
                                 bucket = b,
-                                name = "${PJ_APP_BUCKET_ID}" + dvcHash
+                                name = "${PJ_APP_BUCKET_ID}" + dvcAlias
                             )
                             val ${v}bucket_Text = s3Id.toString()
                             ` ${ORC_S3}/snippets/create-file.sh ${v}bucket_`
@@ -251,14 +252,14 @@ class JSIface(
                         var bucketId: Long? = null
                         val ${v}seek_buckid_S3File = S3File(
                             bucket = b,
-                            name = "${PJ_APP_BUCKET_ID}" + dvcHash
+                            name = "${PJ_APP_BUCKET_ID}" + dvcAlias
                         )
                         ` ./JSIface-read-id.sh ${v}seek_buckid_ `
                         if (bucketId == null) {
                             bucketId = dbHelper.insertBucket(s3Id)
                             val ${v}newfound_bucket_S3File = S3File(
                                 bucket = b,
-                                name = "${PJ_APP_BUCKET_ID}" + dvcHash
+                                name = "${PJ_APP_BUCKET_ID}" + dvcAlias
                             )
                             ` ${ORC_S3}/snippets/create-file.sh ${v}newfound_bucket_ `
                             if (!${v}newfound_bucket_S3ConfirmedFile.exists)
@@ -266,7 +267,7 @@ class JSIface(
 
                             val ${v}newfound_bucket_s3_S3File = S3File(
                                 bucket = b,
-                                name = "${PJ_APP_S3_ID}" + dvcHash
+                                name = "${PJ_APP_S3_ID}" + dvcAlias
                             )
                             ` ${ORC_S3}/snippets/create-file.sh ${v}newfound_bucket_s3_ `
                             if (!${v}newfound_bucket_s3_S3ConfirmedFile.exists)
@@ -282,7 +283,10 @@ class JSIface(
                             if (zph in zphotoIds) {
                                 found += 1;
                             } else {
-                                var errorString = dbHelper.insertZPH(zph)
+                                var errorString = dbHelper.insertZPH(
+                                    zphotoId = zph,
+                                    bucketId = bucketId
+                                )
                                 if (!errorString.isEmpty())
                                     counts.add("<br/>!! "+errorString + " !!<br/>")//todo: hack just to get it written onto screen for now
                                 missing += 1;

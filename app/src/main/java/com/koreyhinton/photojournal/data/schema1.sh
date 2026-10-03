@@ -10,7 +10,8 @@ create table if not exists dc (
             ie: KIPH => korey's iphone
         */
     make text,
-    model text
+    model text,
+    is_this_device integer not null check (is_this_device IN (0,1)) default 0
 ) strict;
 
 -- dcim => digital camera image

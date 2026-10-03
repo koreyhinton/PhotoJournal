@@ -20,6 +20,21 @@ cat << EOF
         context, "photo_journal.db", null, ${DB_VERSION}
     ) {
 
+        fun retrieveThisDeviceAlias(): String? {
+            var db = readableDatabase
+            var alias: String? = null
+            db.rawQuery(
+                """
+                select dc_alias from dc where is_this_device = 1 limit 1
+                """, null
+            ).use { cursor ->
+                while (cursor.moveToNext()) {
+                    alias = cursor.getString(0)
+                }
+            }
+            return alias
+        }
+
         fun retrieveDays(): String {
             val db = readableDatabase
             var csv = ""
@@ -89,7 +104,47 @@ cat << EOF
             return rows
         }
 
-        fun insertZPH(zphotoId: String): String /* error string */ {
+        fun insertThisDeviceAlias(
+            make: String,
+            model: String,
+            alias: String
+        ) {
+            if (retrieveThisDeviceAlias() != null)
+                throw Exception("Device alias is already set")
+            var db = writableDatabase
+            var stmt = db.compileStatement(
+                """
+                    insert into dc (make, model, dc_alias, is_this_device)
+                    values (?, ?, ?, 1)
+                """)
+            try {
+                stmt.bindString(1, make)
+                stmt.bindString(2, model)
+                stmt.bindString(3, alias)
+                stmt.executeInsert()
+            }catch(e: Exception) {
+                ${S3_ERR_LOG}("Warning: " + e.javaClass.simpleName  +
+                    " exception. Attempted to insert this device record, make:"+
+                    make + ", model:" + model +", alias: " + alias +
+                        ", and failed with exception: " + e.message + "\n" +
+                            e.stackTraceToString())
+                throw e
+            } catch(e: Throwable) {
+                ${S3_ERR_LOG}("Warning: " + e.javaClass.simpleName  +
+                    " exception. Attempted to insert this device record, make:"+
+                    make + ", model:" + model +", alias: " + alias +
+                        ", and failed with exception: " + e.message + "\n" +
+                            e.stackTraceToString())
+                throw e
+            } finally {
+                stmt.close()
+            }
+        }
+
+        fun insertZPH(
+            zphotoId: String,
+            bucketId: Long
+        ): String /* error string */ {
             val db = writableDatabase
 
             var components = zphotoId.split("~")
@@ -114,7 +169,15 @@ cat << EOF
             stmt.bindString(2, components[2])
             stmt.bindString(3, components[3])
             try {
-                stmt.executeInsert()
+                var dcimId = stmt.executeInsert()
+                var linkTblStmt = db.compileStatement(
+                """
+                    insert into bucket_dcim (bucket_id, dcim_id)
+                    values (?, ?)
+                """)
+                linkTblStmt.bindLong(1, bucketId)
+                linkTblStmt.bindLong(2, dcimId)
+                linkTblStmt.executeInsert()
             } catch(e: Exception) {
                 ${S3_ERR_LOG}("Warning: " + e.javaClass.simpleName  +
                     " exception. Attempted to insert record ZPH~" + components[1] + "~" + components[2]+"~"+components[3] + " vs " + zphotoId +

@@ -13,6 +13,15 @@ import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewAssetLoader.AssetsPathHandler
 import androidx.webkit.WebViewAssetLoader.ResourcesPathHandler
 import android.webkit.WebView
+import android.text.InputType
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.os.Build
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     lateinit var db: SQLiteDatabase
@@ -21,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
         val dbHelper = DbHelper(this)
+        dbHelper.getWritableDatabase() // ensure db gets created first
         db = dbHelper.writableDatabase
 
         var assetLoader = WebViewAssetLoader.Builder()
@@ -46,5 +56,60 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        Thread {
+            if (dbHelper.retrieveThisDeviceAlias() != null)
+                return@Thread;
+
+            var make = Build.MANUFACTURER
+            var model = Build.MODEL
+
+            this.runOnUiThread {
+                val layout = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(48, 24, 48, 8)
+                }
+                var infoLbl = TextView(this).apply {
+                }
+                infoLbl.setText("Short name for this phone camera (ie: MYPXL)")
+                layout.addView(infoLbl)
+                var aliasEditText = EditText(this).apply {
+                    hint = "Device short name"
+                    inputType = InputType.TYPE_CLASS_TEXT
+                }
+                layout.addView(aliasEditText)
+        
+                val conn = { dialog: DialogInterface, which: Int ->
+                    Thread click@ {
+                        if (aliasEditText.text.toString() == "") {
+                            this.runOnUiThread {
+                                Toast.makeText(this, "Error: empty field, please try again", Toast.LENGTH_SHORT).show()
+                            }
+                            return@click
+                        }
+                        var alias = aliasEditText.text.toString()
+                        dbHelper.insertThisDeviceAlias(
+                            make = make,
+                            model = model,
+                            alias = alias
+                        )
+                        this.runOnUiThread {
+                            Toast.makeText(this, "Phone device alias saved", Toast.LENGTH_SHORT).show()
+                        }
+                    }.start()
+                    Unit
+                }
+                window.decorView.post {
+                    AlertDialog.Builder(this)
+                        .setTitle("This device alias")
+                        .setView(layout)
+                        .setMessage("Short name to recognize your device, ie: MYPXL (my pixel)")
+                        .setPositiveButton(
+                            "Save",
+                            DialogInterface.OnClickListener(function = conn))
+                        .show()
+                }
+            }
+        }.start()
     }
 }
